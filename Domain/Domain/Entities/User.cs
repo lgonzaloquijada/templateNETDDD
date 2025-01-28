@@ -17,4 +17,13 @@ public class User : Entity
         Role = role;
         Token = token;
     }
+
+    public User()
+    {
+        Name = string.Empty;
+        Email = string.Empty;
+        Password = string.Empty;
+        Role = string.Empty;
+        Token = string.Empty;
+    }
 }
