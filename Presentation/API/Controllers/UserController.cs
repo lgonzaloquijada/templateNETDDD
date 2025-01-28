@@ -1,3 +1,4 @@
+using API.DTOs;
 using Application.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAll();
-        return Ok(users);
+        var usersDTO = users.Select(user => UserDTO.ToUserDTO(user));
+        return Ok(usersDTO);
     }
 
     [HttpGet("{id}")]
@@ -30,7 +32,9 @@ public class UserController : ControllerBase
         {
             return NotFound();
         }
-        return Ok(user);
+
+        var userDTO = UserDTO.ToUserDTO(user);
+        return Ok(userDTO);
     }
 
     [HttpGet("email/{email}")]
@@ -41,20 +45,33 @@ public class UserController : ControllerBase
         {
             return NotFound();
         }
-        return Ok(user);
+        var userDTO = UserDTO.ToUserDTO(user);
+        return Ok(userDTO);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(User user)
+    public async Task<IActionResult> Create(UserDTO userDTO)
     {
-        var createdUser = await _userService.Create(user);
-        return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
+        var userModel = userDTO.ToUserModel();
+        var createdUser = await _userService.Create(userModel);
+        var createdUserDTO = UserDTO.ToUserDTO(createdUser);
+        return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUserDTO);
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(User user)
+    public async Task<IActionResult> Update(UserDTO userDTO)
     {
+        var user = userDTO.ToUserModel();
         var updatedUser = await _userService.Update(user);
-        return Ok(updatedUser);
+        var updatedUserDTO = UserDTO.ToUserDTO(updatedUser);
+        return Ok(updatedUserDTO);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deletedUser = await _userService.Delete(id);
+        var deletedUserDTO = UserDTO.ToUserDTO(deletedUser);
+        return Ok(deletedUserDTO);
     }
 }
